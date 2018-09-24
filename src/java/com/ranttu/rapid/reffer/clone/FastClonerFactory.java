@@ -123,7 +123,8 @@ final public class FastClonerFactory {
         ObjectUtil.printClass(fcClzName, bc);
 
         try {
-            return (FastCloner) $.getUnsafe().allocateInstance(defineClass(clz, bc));
+            // TODO, define class with clz
+            return (FastCloner) $.getUnsafe().allocateInstance(defineClass(FastClonerFactory.class, bc));
         } catch (Throwable e) {
             throw new RuntimeException("failed to generate accessor class!", e);
         }
@@ -168,11 +169,13 @@ final public class FastClonerFactory {
                 return;
             }
 
-            // don't clone static field
+            // don't clone static or final field
             // TODO: support skip transient field
-            if (Modifier.isStatic(f.getModifiers())) {
+            if (Modifier.isStatic(f.getModifiers()) || Modifier.isFinal(f.getModifiers())) {
                 continue;
             }
+
+            var fieldClz = f.getType();
 
             // as visited
             visitedFieldNames.add(f.getName());
@@ -181,10 +184,10 @@ final public class FastClonerFactory {
             mv.visitInsn(DUP);
 
             // for primitive field, copy directly
-            if (cloneConfig.shouldIgnore(f.getType())) {
+            if (cloneConfig.shouldIgnore(fieldClz)) {
                 mv.visitVarInsn(ALOAD, V_OBJ);
                 // TODO: verify check point
-                mv.visitFieldInsn(GETFIELD, interClzName, f.getName(), getDescriptor(f.getType()));
+                mv.visitFieldInsn(GETFIELD, interClzName, f.getName(), getDescriptor(fieldClz));
             }
             // other field, use cloner's copy
             else {
@@ -192,7 +195,7 @@ final public class FastClonerFactory {
 
                 // obj.field
                 mv.visitVarInsn(ALOAD, V_OBJ);
-                mv.visitFieldInsn(GETFIELD, interClzName, f.getName(), getDescriptor(f.getType()));
+                mv.visitFieldInsn(GETFIELD, interClzName, f.getName(), getDescriptor(fieldClz));
 
                 mv.visitVarInsn(ALOAD, V_CLONED);
                 mv.visitVarInsn(ALOAD, V_CL);
@@ -206,8 +209,7 @@ final public class FastClonerFactory {
             }
 
             // set field
-            // TODO: support primitive type set
-            mv.visitFieldInsn(PUTFIELD, interClzName, f.getName(), getDescriptor(f.getType()));
+            mv.visitFieldInsn(PUTFIELD, interClzName, f.getName(), getDescriptor(fieldClz));
         }
 
         //~~~ return clone target

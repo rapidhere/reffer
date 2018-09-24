@@ -7,6 +7,7 @@ package com.ranttu.rapid.reffer.clone;
 import com.ranttu.rapid.reffer.misc.$;
 import lombok.experimental.var;
 
+import java.lang.reflect.Array;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -65,9 +66,17 @@ public class Cloner {
         if (clonedBefore != null) {
             return clonedBefore;
         }
+        Class clz = obj.getClass();
+
+        // deal with array
+        if (clz.isArray()) {
+            var arrayCloned = cloneArray(obj, clz, cloned, cl);
+            cloned.put(obj, arrayCloned);
+            return arrayCloned;
+        }
 
         // try fast clone
-        var fastCloned = fastClone(obj, cloned, cl);
+        var fastCloned = fastClone(obj, clz, cloned, cl);
         if (fastCloned != null) {
             cloned.put(obj, fastCloned);
             return fastCloned;
@@ -78,11 +87,70 @@ public class Cloner {
     }
 
     /**
+     * clone a array
+     */
+    private Object cloneArray(Object obj, Class clz, Map<Object, Object> cloned, ClassLoader cl) {
+        var arrLength = Array.getLength(obj);
+        // TODO: refine with arr len == 0?
+        // TODO: support class loader
+
+        Object useSysArrCopy = null;
+        Class componentType = null;
+
+        if (obj instanceof int[]) {
+            useSysArrCopy = new int[arrLength];
+        } else if (obj instanceof String[]) {
+            useSysArrCopy = new String[arrLength];
+        } else if (obj instanceof boolean[]) {
+            useSysArrCopy = new boolean[arrLength];
+        } else if (obj instanceof byte[]) {
+            useSysArrCopy = new byte[arrLength];
+        } else if (obj instanceof short[]) {
+            useSysArrCopy = new short[arrLength];
+        } else if (obj instanceof long[]) {
+            useSysArrCopy = new long[arrLength];
+        } else if (obj instanceof float[]) {
+            useSysArrCopy = new float[arrLength];
+        } else if (obj instanceof double[]) {
+            useSysArrCopy = new double[arrLength];
+        } else if (obj instanceof char[]) {
+            useSysArrCopy = new char[arrLength];
+        } else {
+            componentType = clz.getComponentType();
+            if (config.shouldIgnore(componentType)) {
+                useSysArrCopy = Array.newInstance(componentType, arrLength);
+            }
+        }
+
+        // use system array copy
+        if (useSysArrCopy != null) {
+            //noinspection SuspiciousSystemArraycopy
+            System.arraycopy(obj, 0, useSysArrCopy, 0, arrLength);
+            return useSysArrCopy;
+        }
+
+        // else use iter deep clone
+        var result = Array.newInstance(componentType, arrLength);
+        var arrScale = $.getUnsafe().arrayIndexScale(clz);
+        var arrBase = $.getUnsafe().arrayBaseOffset(clz);
+        for (var i = 0; i < arrLength; i++) {
+            long offset = arrBase + arrScale * i;
+            // clone element
+            Object element = $.getUnsafe().getObject(obj, offset);
+            element = cloneInternal(element, cloned, cl);
+
+            // set element
+            $.getUnsafe().putObject(result, offset, element);
+        }
+        return result;
+    }
+
+    /**
      * invoke fast clone impl!
      */
-    private Object fastClone(Object obj, Map<Object, Object> cloned, ClassLoader cl) {
+    private Object fastClone(Object obj, Class clz, Map<Object, Object> cloned, ClassLoader cl) {
         // find fast cloner
-        var fc = findFastCloner(obj);
+        var fc = findFastCloner(clz);
         if (fc != null) {
             return fc.clone(obj, cloned, cl, this);
         } else {
@@ -93,11 +161,9 @@ public class Cloner {
     /**
      * find matched fast cloner
      */
-    private FastCloner findFastCloner(Object obj) {
-        $.notNull(obj);
-
+    private FastCloner findFastCloner(Class clz) {
         // use pre defined cloner first
-        var fc = config.getDefinedFastCloner(obj);
+        var fc = config.getDefinedFastCloner(clz);
         if (fc != null) {
             return fc;
         }
@@ -108,6 +174,6 @@ public class Cloner {
         }
 
         // else , find and generate fast cloner
-        return fastClonerFactory.getFastCloner(obj.getClass());
+        return fastClonerFactory.getFastCloner(clz);
     }
 }

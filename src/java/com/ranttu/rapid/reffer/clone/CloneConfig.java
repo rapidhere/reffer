@@ -37,7 +37,7 @@ public class CloneConfig {
     /**
      * find defined fast cloner
      */
-    public FastCloner getDefinedFastCloner(Object o) {
+    public FastCloner getDefinedFastCloner(Class clz) {
         // TODO
         return null;
     }

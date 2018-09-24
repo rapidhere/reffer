@@ -9,20 +9,19 @@ package com.ranttu.rapid.reffer.test;
  * @version $Id: ByteCodeTest.java, v 0.1 2018Äê09ÔÂ21ÈÕ 1:23 AM rapid Exp $
  */
 public class ByteCodeTest {
-    int a;
-
-    public void f(int b) {
-        ByteCodeTest a = new ByteCodeTest();
-
-        a.a = 1;
-
-        new Object() {
-            String a = "123";
-            String b = "456";
-            Object c = new Object() {
-                String ca = "789";
-                String cb = "789";
-            };
+    public static void main(String args[]) {
+        int[][] a = new int[][]{
+            {1, 2},
+            {3, 4}
         };
+        int[][] b = new int[2][2];
+
+        System.arraycopy(a, 0, b, 0, 2);
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                System.out.println(b[i][j]);
+            }
+        }
     }
 }

@@ -10,6 +10,9 @@ import lombok.Getter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author rapid
  * @version $Id: ClonerUnitTest.java, v 0.1 2018Äê09ÔÂ21ÈÕ 2:14 AM rapid Exp $
@@ -32,7 +35,35 @@ public class ClonerUnitTest {
         a.c.ca = "hello";
         a.c.cb = "world";
 
-        check(new Object1());
+        check(a);
+    }
+
+    @Test
+    public void test2() {
+        Object1[] arr = new Object1[]{
+            new Object1(), new Object1(), new Object1()
+        };
+
+        arr[0].c.ca = "1a";
+        arr[0].c.cb = "1b";
+
+        arr[1].c.ca = "2a";
+        arr[1].c.cb = "2b";
+
+        arr[2].c.ca = "3a";
+        arr[2].c.cb = "3b";
+
+        check(arr);
+    }
+
+    @Test
+    public void test3() {
+        List<String> list = new ArrayList<>();
+        list.add("111");
+        list.add("222");
+        list.add("333");
+
+        check(list);
     }
 
     private void check(Object o) {
