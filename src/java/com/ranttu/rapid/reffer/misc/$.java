@@ -49,10 +49,18 @@ public class $ {
      * object cannot be null
      */
     public <T> T notNull(T obj) {
-        if (obj == null) {
-            throw new IllegalArgumentException("cannot be null");
+        should(obj != null, "cannot be null");
+        return obj;
+    }
+
+    /**
+     * condition should be true
+     */
+    public <T> T should(boolean cond, String msg) {
+        if (!cond) {
+            throw new IllegalArgumentException(msg);
         }
 
-        return obj;
+        return null;
     }
 }

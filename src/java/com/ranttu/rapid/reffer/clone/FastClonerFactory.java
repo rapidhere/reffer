@@ -216,6 +216,7 @@ final public class FastClonerFactory {
         mv.visitInsn(DUP);
         mv.visitInsn(ARETURN);
 
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
