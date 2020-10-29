@@ -10,7 +10,7 @@ package sun.reflect;
  * use
  *
  * @author rapid
- * @version $Id: MagicAccessorMark.java, v 0.1 2018Äê09ÔÂ20ÈÕ 10:06 PM rapid Exp $
+ * @version $Id: MagicAccessorMark.java, v 0.1 2018å¹´09æœˆ20æ—¥ 10:06 PM rapid Exp $
  * @see com.ranttu.rapid.reffer.misc.BackdoorObject
  */
 @SuppressWarnings("sunapi")

@@ -29,7 +29,7 @@ import static com.ranttu.rapid.reffer.misc.asm.Opcodes.RETURN;
 
 /**
  * @author rapid
- * @version $Id: BytecodeUtil.java, v 0.1 2018Äê12ÔÂ03ÈÕ 5:49 PM rapid Exp $
+ * @version $Id: BytecodeUtil.java, v 0.1 2018å¹´12æœˆ03æ—¥ 5:49 PM rapid Exp $
  */
 @UtilityClass
 public class BytecodeUtil {

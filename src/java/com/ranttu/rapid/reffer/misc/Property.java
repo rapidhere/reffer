@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  * bean property fields of a class
  *
  * @author rapid
- * @version $Id: Property.java, v 0.1 2018Äê11ÔÂ06ÈÕ 6:25 PM rapid Exp $
+ * @version $Id: Property.java, v 0.1 2018å¹´11æœˆ06æ—¥ 6:25 PM rapid Exp $
  */
 public class Property {
     @Getter

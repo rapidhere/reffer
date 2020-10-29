@@ -46,14 +46,14 @@ class Frame {
      * of the first basic block (which is computed from the method descriptor),
      * and by using the previously computed output frames to compute the input
      * state of the other blocks.
-     * 
+     *
      * All output and input frames are stored as arrays of integers. Reference
      * and array types are represented by an index into a type table (which is
      * not the same as the constant pool of the class, in order to avoid adding
      * unnecessary constants in the pool - not all computed frames will end up
      * being stored in the stack map table). This allows very fast type
      * comparisons.
-     * 
+     *
      * Output stack map frames are computed relatively to the input frame of the
      * basic block, which is not yet known when output frames are computed. It
      * is therefore necessary to be able to represent abstract types such as
@@ -61,7 +61,7 @@ class Frame {
      * position x from the top of the input frame stack" or even "the type at
      * position x in the input frame, with y more (or less) array dimensions".
      * This explains the rather complicated type format used in output frames.
-     * 
+     *
      * This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a
      * signed number of array dimensions (from -8 to 7). KIND is either BASE,
      * LOCAL or STACK. BASE is used for types that are not relative to the input
@@ -72,14 +72,14 @@ class Frame {
      * relatively to the top of input frame stack. For BASE types, it is either
      * one of the constants defined below, or for OBJECT and UNINITIALIZED
      * types, a tag and an index in the type table.
-     * 
+     *
      * Output frames can contain types of any kind and with a positive or
      * negative dimension (and even unassigned types, represented by 0 - which
      * does not correspond to any valid type value). Input frames can only
      * contain BASE types of positive or null dimension. In all cases the type
      * table contains only internal type names (array type descriptors are
      * forbidden - dimensions must be represented through the DIM field).
-     * 
+     *
      * The LONG and DOUBLE types are always represented by using two slots (LONG
      * + TOP or DOUBLE + TOP), for local variable types as well as in the
      * operand stack. This is necessary to be able to simulate DUPx_y

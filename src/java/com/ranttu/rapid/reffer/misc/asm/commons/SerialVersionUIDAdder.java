@@ -377,11 +377,11 @@ public class SerialVersionUIDAdder extends ClassVisitor {
             /*
              * 4. For each field of the class sorted by field name (except
              * private static and private transient fields):
-             * 
+             *
              * 1. The name of the field in UTF encoding. 2. The modifiers of the
              * field written as a 32-bit integer. 3. The descriptor of the field
              * in UTF encoding
-             * 
+             *
              * Note that field signatures are not dot separated. Method and
              * constructor signatures are dot separated. Go figure...
              */
@@ -431,7 +431,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
              * digest, the five 32-bit words H0 H1 H2 H3 H4, is in an array of
              * five int values named sha, the hash value would be computed as
              * follows:
-             * 
+             *
              * long hash = ((sha[0] >>> 24) & 0xFF) | ((sha[0] >>> 16) & 0xFF)
              * << 8 | ((sha[0] >>> 8) & 0xFF) << 16 | ((sha[0] >>> 0) & 0xFF) <<
              * 24 | ((sha[1] >>> 24) & 0xFF) << 32 | ((sha[1] >>> 16) & 0xFF) <<

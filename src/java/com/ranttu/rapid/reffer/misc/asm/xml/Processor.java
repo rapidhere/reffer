@@ -348,7 +348,7 @@ public class Processor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
      */
     protected void update(final Object arg, final int n) {

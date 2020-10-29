@@ -12,7 +12,7 @@ import lombok.Setter;
  * deep clone configs
  *
  * @author rapid
- * @version $Id: CloneConfig.java, v 0.1 2018Äê09ÔÂ20ÈÕ 10:41 PM rapid Exp $
+ * @version $Id: CloneConfig.java, v 0.1 2018å¹´09æœˆ20æ—¥ 10:41 PM rapid Exp $
  */
 public class CloneConfig {
     @Getter
@@ -30,14 +30,14 @@ public class CloneConfig {
     /**
      * should this type of clazz ignored for deep clone
      */
-    public boolean shouldIgnore(Class clz) {
+    public boolean shouldIgnore(Class<?> clz) {
         return ObjectUtil.isPrimitive(clz);
     }
 
     /**
      * find defined fast cloner
      */
-    public FastCloner getDefinedFastCloner(Class clz) {
+    public FastCloner getDefinedFastCloner(Class<?> clz) {
         // TODO
         return null;
     }

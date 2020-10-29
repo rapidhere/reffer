@@ -24,7 +24,7 @@ import java.util.WeakHashMap;
  * object utils
  *
  * @author rapid
- * @version $Id: Objects.java, v 0.1 2018Äê09ÔÂ20ÈÕ 10:29 PM rapid Exp $
+ * @version $Id: Objects.java, v 0.1 2018å¹´09æœˆ20æ—¥ 10:29 PM rapid Exp $
  */
 @UtilityClass
 public class ObjectUtil {

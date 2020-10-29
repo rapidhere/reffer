@@ -15,9 +15,8 @@ import java.util.List;
 
 /**
  * @author rapid
- * @version $Id: ClonerUnitTest.java, v 0.1 2018Äê09ÔÂ21ÈÕ 2:14 AM rapid Exp $
+ * @version $Id: ClonerUnitTest.java, v 0.1 2018å¹´09æœˆ21æ—¥ 2:14 AM rapid Exp $
  */
-@SuppressWarnings("unused")
 public class ClonerUnitTest {
     private Cloner cloner = new Cloner();
 

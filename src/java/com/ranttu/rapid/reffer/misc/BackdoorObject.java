@@ -11,7 +11,7 @@ import sun.reflect.MagicAccessorMark;
  * WILL **NOT** BE CHECKED BY JVM BYTECODE PROTOCOLS
  *
  * @author rapid
- * @version $Id: BackdoorObject.java, v 0.1 2018Äê09ÔÂ20ÈÕ 10:12 PM rapid Exp $
+ * @version $Id: BackdoorObject.java, v 0.1 2018å¹´09æœˆ20æ—¥ 10:12 PM rapid Exp $
  */
 public class BackdoorObject extends MagicAccessorMark {
 }

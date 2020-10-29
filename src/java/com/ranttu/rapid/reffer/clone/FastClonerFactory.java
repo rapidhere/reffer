@@ -39,7 +39,7 @@ import static com.ranttu.rapid.reffer.misc.asm.Type.getInternalName;
  * auto-gen fast cloner factory
  *
  * @author rapid
- * @version $Id: FastClonerFactory.java, v 0.1 2018Äê09ÔÂ20ÈÕ 11:03 PM rapid Exp $
+ * @version $Id: FastClonerFactory.java, v 0.1 2018-09-20 11:03 PM rapid Exp $
  */
 @RequiredArgsConstructor
 final public class FastClonerFactory {

@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 
 /**
  * @author rapid
- * @version $Id: ByteCodeTest.java, v 0.1 2018Äê09ÔÂ21ÈÕ 1:23 AM rapid Exp $
+ * @version $Id: ByteCodeTest.java, v 0.1 2018å¹´09æœˆ21æ—¥ 1:23 AM rapid Exp $
  */
 public class ByteCodeTest {
     private ByteBuffer bb = ByteBuffer.allocate(100000);

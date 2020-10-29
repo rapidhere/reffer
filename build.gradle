@@ -15,12 +15,45 @@ repositories {
 
 dependencies {
     compileOnly 'org.projectlombok:lombok:1.16.20'
-    compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
     apt "org.projectlombok:lombok:1.16.20"
 
+    compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
+
+    testCompileOnly 'org.projectlombok:lombok:1.16.20'
+    testApt 'org.projectlombok:lombok:1.16.20'
     testCompile 'org.testng:testng:6.11'
     testCompile group: 'com.alibaba', name: 'fastjson', version: '1.2.49'
 }
+
+test {
+    useTestNG()
+
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut"
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+            exceptionFormat "full"
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
+    }
+}
+
 
 sourceSets {
     main {

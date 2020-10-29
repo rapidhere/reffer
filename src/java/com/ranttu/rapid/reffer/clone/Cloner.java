@@ -15,7 +15,7 @@ import java.util.Map;
  * deep cloner
  *
  * @author rapid
- * @version $Id: Cloner.java, v 0.1 2018Äê09ÔÂ20ÈÕ 10:19 PM rapid Exp $
+ * @version $Id: Cloner.java, v 0.1 2018å¹´09æœˆ20æ—¥ 10:19 PM rapid Exp $
  */
 public class Cloner {
     /**

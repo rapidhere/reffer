@@ -9,7 +9,7 @@ import lombok.experimental.UtilityClass;
 
 /**
  * @author rapid
- * @version $Id: StringUtil.java, v 0.1 2018Äê12ÔÂ03ÈÕ 5:40 PM rapid Exp $
+ * @version $Id: StringUtil.java, v 0.1 2018å¹´12æœˆ03æ—¥ 5:40 PM rapid Exp $
  */
 @UtilityClass
 public class StringUtil {
