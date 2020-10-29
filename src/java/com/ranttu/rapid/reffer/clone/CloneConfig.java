@@ -20,6 +20,10 @@ public class CloneConfig {
     /** fast clone, enabled by default */
     private boolean fastCloneEnabled = true;
 
+    @Getter
+    @Setter
+    private boolean ignoreTransient = true;
+
     /**
      * should this omitted for clone
      */

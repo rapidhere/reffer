@@ -31,12 +31,12 @@ public class ObjectUtil {
     /**
      * cached fields
      */
-    private final Map<Class, List<Field>> classFields = new WeakHashMap<>();
+    private final Map<Class<?>, List<Field>> classFields = new WeakHashMap<>();
 
     /**
      * cached properties
      */
-    private final Map<Class, Map<String, Property>> classProperties = new WeakHashMap<>();
+    private final Map<Class<?>, Map<String, Property>> classProperties = new WeakHashMap<>();
 
     /**
      * check object is primitive object
@@ -59,7 +59,7 @@ public class ObjectUtil {
     /**
      * check the clazz is primitive clazz
      */
-    public boolean isPrimitive(Class clz) {
+    public boolean isPrimitive(Class<?> clz) {
         return clz.isPrimitive()
             || clz == String.class
             || clz == Integer.class
@@ -78,7 +78,7 @@ public class ObjectUtil {
      * @param cl class to be solved
      * @return fields
      */
-    public List<Field> getAllFields(Class cl) {
+    public List<Field> getAllFields(Class<?> cl) {
         if (cl == Object.class) {
             return new ArrayList<>();
         }
@@ -98,16 +98,15 @@ public class ObjectUtil {
      * @param cl class to be solved
      * @return properties
      */
-    public Map<String, Property> getAllProperties(Class cl) {
+    public Map<String, Property> getAllProperties(Class<?> cl) {
         if (cl == Object.class) {
             return Collections.emptyMap();
         }
 
         return classProperties.computeIfAbsent(cl, k -> {
-            var properties = new HashMap<String, Property>();
-            properties.putAll(getAllProperties(cl.getSuperclass()));
+            var properties = new HashMap<String, Property>(getAllProperties(cl.getSuperclass()));
             if (cl.getInterfaces().length != 0) {
-                for (Class inter : cl.getInterfaces()) {
+                for (Class<?> inter : cl.getInterfaces()) {
                     properties.putAll(getAllProperties(inter));
                 }
             }
@@ -161,7 +160,7 @@ public class ObjectUtil {
      * @param bytes     the bytes
      */
     public void printClass(String className, byte[] bytes) {
-        if (Boolean.valueOf(System.getProperty("reffer.printBC"))) {
+        if (Boolean.parseBoolean(System.getProperty("reffer.printBC"))) {
             System.out.println("========Class: " + className);
             ClassReader reader = new ClassReader(bytes);
             reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);

@@ -66,7 +66,7 @@ public class Cloner {
         if (clonedBefore != null) {
             return clonedBefore;
         }
-        Class clz = obj.getClass();
+        Class<?> clz = obj.getClass();
 
         // deal with array
         if (clz.isArray()) {
@@ -89,13 +89,12 @@ public class Cloner {
     /**
      * clone a array
      */
-    private Object cloneArray(Object obj, Class clz, Map<Object, Object> cloned, ClassLoader cl) {
+    private Object cloneArray(Object obj, Class<?> clz, Map<Object, Object> cloned, ClassLoader cl) {
         var arrLength = Array.getLength(obj);
-        // TODO: refine with arr len == 0?
         // TODO: support class loader
 
         Object useSysArrCopy = null;
-        Class componentType = null;
+        Class<?> componentType = null;
 
         if (obj instanceof int[]) {
             useSysArrCopy = new int[arrLength];
@@ -131,6 +130,10 @@ public class Cloner {
 
         // else use iter deep clone
         var result = Array.newInstance(componentType, arrLength);
+        if (arrLength == 0) {
+            return result;
+        }
+
         var arrScale = $.getUnsafe().arrayIndexScale(clz);
         var arrBase = $.getUnsafe().arrayBaseOffset(clz);
         for (var i = 0; i < arrLength; i++) {
@@ -148,7 +151,7 @@ public class Cloner {
     /**
      * invoke fast clone impl!
      */
-    private Object fastClone(Object obj, Class clz, Map<Object, Object> cloned, ClassLoader cl) {
+    private Object fastClone(Object obj, Class<?> clz, Map<Object, Object> cloned, ClassLoader cl) {
         // find fast cloner
         var fc = findFastCloner(clz);
         if (fc != null) {
@@ -161,7 +164,7 @@ public class Cloner {
     /**
      * find matched fast cloner
      */
-    private FastCloner findFastCloner(Class clz) {
+    private FastCloner findFastCloner(Class<?> clz) {
         // use pre defined cloner first
         var fc = config.getDefinedFastCloner(clz);
         if (fc != null) {

@@ -17,14 +17,14 @@ import java.util.List;
  * @author rapid
  * @version $Id: ClonerUnitTest.java, v 0.1 2018年09月21日 2:14 AM rapid Exp $
  */
-public class ClonerUnitTest {
+public class ClonerSmokeTest {
     private Cloner cloner = new Cloner();
 
     @Test
     public void test0() {
         Assert.assertEquals(1, (int) cloner.deepClone(1));
         Assert.assertEquals(1.0, cloner.deepClone(1.0));
-        Assert.assertEquals(true, (boolean) cloner.deepClone(true));
+        Assert.assertTrue(cloner.deepClone(true));
         Assert.assertEquals("123", cloner.deepClone("123"));
     }
 

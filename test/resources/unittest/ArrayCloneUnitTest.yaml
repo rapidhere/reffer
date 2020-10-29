@@ -1,0 +1,8 @@
+- desc: primitive array
+  obj: [1, 2, 3, 4, 5]
+
+- desc: char array
+  obj: ['a', 'b', 'c', 'd']
+
+- desc: empty array
+  obj: []

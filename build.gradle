@@ -23,6 +23,10 @@ dependencies {
     testApt 'org.projectlombok:lombok:1.16.20'
     testCompile 'org.testng:testng:6.11'
     testCompile group: 'com.alibaba', name: 'fastjson', version: '1.2.49'
+    testCompile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
+    testCompile 'com.fasterxml.jackson.core:jackson-core:2.8.8'
+    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
+    testCompile 'commons-beanutils:commons-beanutils:1.9.3'
 }
 
 test {
