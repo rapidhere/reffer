@@ -11,7 +11,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author rapid
@@ -33,6 +35,9 @@ public class ClonerSmokeTest {
         Object1 a = new Object1();
         a.c.ca = "hello";
         a.c.cb = "world";
+
+        a.d.ca = "ni";
+        a.d.cb = "ma";
 
         check(a);
     }
@@ -65,6 +70,24 @@ public class ClonerSmokeTest {
         check(list);
     }
 
+    @Test
+    public void test4() {
+        Map<String, String> m = new HashMap<>();
+        m.put("a", "b");
+        m.put("c", "d");
+
+        check(m);
+    }
+
+    @Test
+    public void test5() {
+        Object3 obj = new Object3();
+        obj.outer1 = "ni";
+        obj.outer2.fill("ma");
+
+        check(obj);
+    }
+
     private void check(Object o) {
         Object cloned = cloner.deepClone(o);
 
@@ -74,11 +97,15 @@ public class ClonerSmokeTest {
 
 class Object1 {
     @Getter
-    private String a = "123";
+    final private String a = "123";
+    @Getter
+    final private int aa = 123;
     @Getter
     private String b = "456";
     @Getter
     Object2 c = new Object2();
+    @Getter
+    final Object2 d = new Object2();
 }
 
 class Object2 {
@@ -86,4 +113,21 @@ class Object2 {
     String ca;
     @Getter
     String cb;
+}
+
+class Object3 {
+    String outer1;
+
+    ObjectInner3 outer2 = new ObjectInner3();
+
+    class ObjectInner3 {
+        String inner1;
+
+        String inner2;
+
+        public void fill(String par) {
+            inner1 = outer1;
+            inner2 = par;
+        }
+    }
 }

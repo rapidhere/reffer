@@ -7,7 +7,9 @@ package com.ranttu.rapid.reffer.clone;
 import com.ranttu.rapid.reffer.misc.$;
 import com.ranttu.rapid.reffer.misc.BackdoorObject;
 import com.ranttu.rapid.reffer.misc.ObjectUtil;
+import com.ranttu.rapid.reffer.misc.StringUtil;
 import com.ranttu.rapid.reffer.misc.asm.ClassWriter;
+import com.ranttu.rapid.reffer.misc.asm.MethodVisitor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.var;
 import lombok.val;
@@ -16,20 +18,29 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ACC_FINAL;
+import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ACC_PRIVATE;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ACC_PUBLIC;
+import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ACC_STATIC;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ACC_SUPER;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ACC_SYNTHETIC;
+import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ACC_TRANSIENT;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ALOAD;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ARETURN;
+import static com.ranttu.rapid.reffer.misc.asm.Opcodes.ASTORE;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.DUP;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.GETFIELD;
+import static com.ranttu.rapid.reffer.misc.asm.Opcodes.INVOKEINTERFACE;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.INVOKESPECIAL;
+import static com.ranttu.rapid.reffer.misc.asm.Opcodes.INVOKESTATIC;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.INVOKEVIRTUAL;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.NEW;
+import static com.ranttu.rapid.reffer.misc.asm.Opcodes.POP;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.PUTFIELD;
 import static com.ranttu.rapid.reffer.misc.asm.Opcodes.V1_6;
 import static com.ranttu.rapid.reffer.misc.asm.Type.getDescriptor;
@@ -63,6 +74,13 @@ final public class FastClonerFactory {
      */
     private final static AtomicInteger clazzCount = new AtomicInteger();
 
+    // index of parameters and variables
+    private static final int CLM_V_OBJ = 1;          // object to be cloned
+    private static final int CLM_V_CLONED = 2;       // cloned objects
+    private static final int CLM_V_CL = 3;           // class loader
+    private static final int CLM_V_CLONER = 4;       // cloner
+    private static final int CLM_V_TARGET_SLOT = 5;  // target object
+
     /**
      * get or generate a fast cloner
      * <p>
@@ -86,7 +104,6 @@ final public class FastClonerFactory {
      * generate a fast cloner
      */
     private FastCloner generateCloner(Class<?> clz) {
-        // TODO: can use super.clone
         // TODO: can use expanded clone
         // TODO: bytecode verify
         // TODO: support array
@@ -105,19 +122,13 @@ final public class FastClonerFactory {
             new String[]{getInternalName(FastCloner.class)});
         cw.visitSource("<reffer-generated-cloner>", null);
 
-        //~~~ constructor method
-        //        var mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-        //        mv.visitCode();
-        //        mv.visitVarInsn(ALOAD, 0);
-        //        mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V", false);
-        //        mv.visitInsn(RETURN);
-        //        mv.visitMaxs(0, 0);
-        //        mv.visitEnd();
+        //~~~ set configs
+        serializeConfigs(cw, clz.getName(), cloneConfig);
 
         //~~~ clone method
         visitCloneMethod(cw, clz);
 
-        // generate bytecode
+        // generate byte code
         cw.visitEnd();
 
         var bc = cw.toByteArray();
@@ -132,16 +143,34 @@ final public class FastClonerFactory {
     }
 
     /**
+     * write configs to class
+     */
+    private void serializeConfigs(ClassWriter cw, String className, CloneConfig cc) {
+        if (!cc.isDumpFcInfo()) {
+            return;
+        }
+
+        Map<String, String> configs = new LinkedHashMap<>();
+
+        configs.put("className", className);
+        configs.put("dumpFcInfo", String.valueOf(cc.isDumpFcInfo()));
+        configs.put("ignoreTransient", String.valueOf(cc.isIgnoreTransient()));
+
+        for (String configKey : configs.keySet()) {
+            String confValue = configs.get(configKey);
+
+            cw.visitField(
+                ACC_PRIVATE | ACC_STATIC | ACC_FINAL | ACC_TRANSIENT,
+                "$" + configKey, "Ljava/lang/String;",
+                null, confValue);
+        }
+    }
+
+    /**
      * generate the clone method
      */
     private void visitCloneMethod(ClassWriter cw, Class<?> clz) {
         val interClzName = getInternalName(clz);
-
-        // index of parameters and variables
-        val V_OBJ = 1;          // object to be cloned
-        val V_CLONED = 2;       // cloned objects
-        val V_CL = 3;           // class loader
-        val V_CLONER = 4;       // cloner
 
         var mv = cw.visitMethod(ACC_PUBLIC,
             "clone",
@@ -156,11 +185,26 @@ final public class FastClonerFactory {
         // method content
         mv.visitCode();
 
+        // prepare to add to cloned map
+        mv.visitVarInsn(ALOAD, CLM_V_CLONED);
+        mv.visitVarInsn(ALOAD, CLM_V_OBJ);
+
         //~~~ new instance
-        // TODO: support arged constructor
         mv.visitTypeInsn(NEW, interClzName);
+        // use the default constructor if has
+        if (ObjectUtil.hasDefaultConstructor(clz)) {
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, interClzName, "<init>", "()V", false);
+        }
+
+        //~~~ after call constructor, update "cloned map"
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, interClzName, "<init>", "()V", false);
+        mv.visitVarInsn(ASTORE, CLM_V_TARGET_SLOT);
+        mv.visitMethodInsn(INVOKEINTERFACE,
+            getInternalName(Map.class), "put",
+            "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true);
+        mv.visitInsn(POP);
+        mv.visitVarInsn(ALOAD, CLM_V_TARGET_SLOT);
 
         //~~~ set fields
         Set<String> visitedFieldNames = new HashSet<>();
@@ -188,21 +232,29 @@ final public class FastClonerFactory {
             // copy field
             mv.visitInsn(DUP);
 
+            // copy to final fields: prepare
+            if (Modifier.isFinal(f.getModifiers())) {
+                // push offset on stack
+                // NOTE: must not be static field
+                long fieldOffset = $.getUnsafe().objectFieldOffset(f);
+                mv.visitLdcInsn(fieldOffset);
+            }
+
             // for primitive field, copy directly
             if (cloneConfig.shouldIgnore(fieldClz)) {
-                mv.visitVarInsn(ALOAD, V_OBJ);
+                mv.visitVarInsn(ALOAD, CLM_V_OBJ);
                 mv.visitFieldInsn(GETFIELD, interClzName, f.getName(), getDescriptor(fieldClz));
             }
             // other field, use cloner's copy
             else {
-                mv.visitVarInsn(ALOAD, V_CLONER);
+                mv.visitVarInsn(ALOAD, CLM_V_CLONER);
 
                 // obj.field
-                mv.visitVarInsn(ALOAD, V_OBJ);
+                mv.visitVarInsn(ALOAD, CLM_V_OBJ);
                 mv.visitFieldInsn(GETFIELD, interClzName, f.getName(), getDescriptor(fieldClz));
 
-                mv.visitVarInsn(ALOAD, V_CLONED);
-                mv.visitVarInsn(ALOAD, V_CL);
+                mv.visitVarInsn(ALOAD, CLM_V_CLONED);
+                mv.visitVarInsn(ALOAD, CLM_V_CL);
 
                 mv.visitMethodInsn(
                     INVOKEVIRTUAL,
@@ -212,8 +264,14 @@ final public class FastClonerFactory {
                     false);
             }
 
-            // set field
-            mv.visitFieldInsn(PUTFIELD, interClzName, f.getName(), getDescriptor(fieldClz));
+            // common field set
+            if (!Modifier.isFinal(f.getModifiers())) {
+                mv.visitFieldInsn(PUTFIELD, interClzName, f.getName(), getDescriptor(fieldClz));
+            }
+            // final field set
+            else {
+                handleFinalFieldSet(mv, f);
+            }
         }
 
         //~~~ return clone target
@@ -222,6 +280,21 @@ final public class FastClonerFactory {
 
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    /**
+     * set to final field with unsafe methods
+     */
+    private void handleFinalFieldSet(MethodVisitor mv, Field f) {
+        if (f.getType().isPrimitive()) {
+            String methodName = "set" + StringUtil.capFirst(f.getType().getName());
+            String methodDesc = "(Ljava/lang/Object;J" + getDescriptor(f.getType()) + ")V";
+
+            mv.visitMethodInsn(INVOKESTATIC, getInternalName(BackdoorObject.class), methodName, methodDesc, false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, getInternalName(BackdoorObject.class), "setObject",
+                "(Ljava/lang/Object;JLjava/lang/Object;)V", false);
+        }
     }
 
     /**

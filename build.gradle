@@ -41,7 +41,7 @@ test {
 
         // set options for log level DEBUG and INFO
         debug {
-            events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+            events "started", "passed", "skipped", "failed", /*"standardOut",*/ "standardError"
             exceptionFormat "full"
         }
         info.events = debug.events

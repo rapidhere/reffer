@@ -70,15 +70,12 @@ public class Cloner {
 
         // deal with array
         if (clz.isArray()) {
-            var arrayCloned = cloneArray(obj, clz, cloned, cl);
-            cloned.put(obj, arrayCloned);
-            return arrayCloned;
+            return cloneArray(obj, clz, cloned, cl);
         }
 
         // try fast clone
         var fastCloned = fastClone(obj, clz, cloned, cl);
         if (fastCloned != null) {
-            cloned.put(obj, fastCloned);
             return fastCloned;
         }
 
@@ -123,6 +120,7 @@ public class Cloner {
 
         // use system array copy
         if (useSysArrCopy != null) {
+            cloned.put(obj, useSysArrCopy);
             //noinspection SuspiciousSystemArraycopy
             System.arraycopy(obj, 0, useSysArrCopy, 0, arrLength);
             return useSysArrCopy;
@@ -130,6 +128,8 @@ public class Cloner {
 
         // else use iter deep clone
         var result = Array.newInstance(componentType, arrLength);
+        cloned.put(obj, result);
+
         if (arrLength == 0) {
             return result;
         }

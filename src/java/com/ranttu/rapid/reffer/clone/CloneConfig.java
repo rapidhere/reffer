@@ -22,7 +22,13 @@ public class CloneConfig {
 
     @Getter
     @Setter
-    private boolean ignoreTransient = true;
+    /** should ignore transient field, disabled by default */
+    private boolean ignoreTransient = false;
+
+    @Getter
+    @Setter
+    /** dump fast clone info in fast cloners */
+    private boolean dumpFcInfo = true;
 
     /**
      * should this omitted for clone
