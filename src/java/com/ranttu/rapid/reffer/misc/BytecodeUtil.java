@@ -53,7 +53,7 @@ public class BytecodeUtil {
         return opc;
     }
 
-    private final Map<Class, int[]> PRIMITIVE_OPCS;
+    private final Map<Class<?>, int[]> PRIMITIVE_OPCS;
 
     private enum OPS {
         LOAD,
@@ -63,7 +63,7 @@ public class BytecodeUtil {
 
     static {
         // ~~~ primitive opcs
-        PRIMITIVE_OPCS = ImmutableMap.<Class, int[]>builder()
+        PRIMITIVE_OPCS = ImmutableMap.<Class<?>, int[]>builder()
             .put(int.class, opcs(ILOAD, ISTORE, IRETURN))
             .put(boolean.class, opcs(ILOAD, ISTORE, IRETURN))
             .put(byte.class, opcs(ILOAD, ISTORE, IRETURN))
