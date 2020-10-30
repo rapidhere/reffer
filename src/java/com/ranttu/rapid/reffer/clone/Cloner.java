@@ -88,7 +88,6 @@ public class Cloner {
      */
     private Object cloneArray(Object obj, Class<?> clz, Map<Object, Object> cloned, ClassLoader cl) {
         var arrLength = Array.getLength(obj);
-        // TODO: support class loader
 
         Object useSysArrCopy = null;
         Class<?> componentType = null;
@@ -153,7 +152,7 @@ public class Cloner {
      */
     private Object fastClone(Object obj, Class<?> clz, Map<Object, Object> cloned, ClassLoader cl) {
         // find fast cloner
-        var fc = findFastCloner(clz);
+        var fc = findFastCloner(clz, cl);
         if (fc != null) {
             return fc.clone(obj, cloned, cl, this);
         } else {
@@ -164,7 +163,7 @@ public class Cloner {
     /**
      * find matched fast cloner
      */
-    private FastCloner findFastCloner(Class<?> clz) {
+    private FastCloner findFastCloner(Class<?> clz, ClassLoader cl) {
         // use pre defined cloner first
         var fc = config.getDefinedFastCloner(clz);
         if (fc != null) {
@@ -177,6 +176,6 @@ public class Cloner {
         }
 
         // else , find and generate fast cloner
-        return fastClonerFactory.getFastCloner(clz);
+        return fastClonerFactory.getFastCloner(clz, cl);
     }
 }
