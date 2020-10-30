@@ -21,13 +21,21 @@ public class Cloner {
     /**
      * clone configurations
      */
-    private CloneConfig config = new CloneConfig();
+    private final CloneConfig config;
 
     /**
      * factory to generate fast cloner
      */
-    private FastClonerFactory fastClonerFactory = new FastClonerFactory(config);
+    private final FastClonerFactory fastClonerFactory;
 
+    public Cloner() {
+        this(CloneConfig.builder().withDefault().build());
+    }
+
+    private Cloner(CloneConfig config) {
+        this.config = config;
+        this.fastClonerFactory = new FastClonerFactory(config);
+    }
 
     /**
      * deep clone a object, use context class loader
@@ -55,7 +63,7 @@ public class Cloner {
     /**
      * clone internal impl
      */
-    private Object cloneInternal(Object obj, Map<Object, Object> cloned, ClassLoader cl) {
+    public Object cloneInternal(Object obj, Map<Object, Object> cloned, ClassLoader cl) {
         // omitted objects
         if (config.shouldIgnore(obj)) {
             return obj;

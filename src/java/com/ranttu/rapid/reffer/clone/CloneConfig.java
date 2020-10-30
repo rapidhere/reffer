@@ -4,9 +4,14 @@
  */
 package com.ranttu.rapid.reffer.clone;
 
+import com.ranttu.rapid.reffer.clone.custom.CustomFastClonerSupport;
+import com.ranttu.rapid.reffer.clone.custom.PropertiesFastCloner;
 import com.ranttu.rapid.reffer.misc.ObjectUtil;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * deep clone configs
@@ -14,21 +19,41 @@ import lombok.Setter;
  * @author rapid
  * @version $Id: CloneConfig.java, v 0.1 2018年09月20日 10:41 PM rapid Exp $
  */
-public class CloneConfig {
-    @Getter
-    @Setter
-    /** fast clone, enabled by default */
-    private boolean fastCloneEnabled = true;
+@Getter
+@ToString
+final public class CloneConfig {
+    /**
+     * fast clone, enabled by default
+     */
+    private boolean fastCloneEnabled;
 
-    @Getter
-    @Setter
-    /** should ignore transient field, disabled by default */
-    private boolean ignoreTransient = false;
+    /**
+     * should ignore transient field, disabled by default
+     */
+    private boolean ignoreTransient;
 
-    @Getter
-    @Setter
-    /** dump fast clone info in fast cloners */
-    private boolean dumpFcInfo = true;
+    /**
+     * dump fast clone info in fast cloners
+     */
+    private boolean dumpFcInfo;
+
+    /**
+     * user defined fast cloner
+     */
+    private Map<Class<?>, FastCloner> userDefinedFastCloners = new HashMap<>();
+
+    /**
+     * no constructor, use builder
+     */
+    private CloneConfig() {
+    }
+
+    /**
+     * builder method
+     */
+    public static ConfigBuilder builder() {
+        return new ConfigBuilder();
+    }
 
     /**
      * should this omitted for clone
@@ -48,7 +73,52 @@ public class CloneConfig {
      * find defined fast cloner
      */
     public FastCloner getDefinedFastCloner(Class<?> clz) {
-        // TODO
-        return null;
+        return userDefinedFastCloners.get(clz);
+    }
+
+    //~~~ config builder
+    public static class ConfigBuilder {
+        private CloneConfig cloneConfig = new CloneConfig();
+
+        public ConfigBuilder withDefault() {
+            return fastCloneEnabled(true)
+                .ignoreTransient(false)
+                .dumpFcInfo(true)
+                .withDefaultFastCloner();
+        }
+
+        public ConfigBuilder fastCloneEnabled(boolean flag) {
+            cloneConfig.fastCloneEnabled = flag;
+            return this;
+        }
+
+        public ConfigBuilder ignoreTransient(boolean flag) {
+            cloneConfig.ignoreTransient = flag;
+            return this;
+        }
+
+        public ConfigBuilder dumpFcInfo(boolean flag) {
+            cloneConfig.dumpFcInfo = flag;
+            return this;
+        }
+
+        public ConfigBuilder registerFastCloner(Class<?> type, FastCloner fc) {
+            cloneConfig.userDefinedFastCloners.put(type, fc);
+            return this;
+        }
+
+        public ConfigBuilder registerFastCloner(CustomFastClonerSupport<?> fc) {
+            registerFastCloner(fc.getType(), fc);
+            return this;
+        }
+
+        public ConfigBuilder withDefaultFastCloner() {
+            registerFastCloner(new PropertiesFastCloner());
+            return this;
+        }
+
+        public CloneConfig build() {
+            return cloneConfig;
+        }
     }
 }
