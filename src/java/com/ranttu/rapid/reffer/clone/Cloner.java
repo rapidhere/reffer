@@ -30,10 +30,10 @@ public class Cloner {
     private final FastClonerFactory fastClonerFactory;
 
     public Cloner() {
-        this(CloneConfig.builder().withDefault().build());
+        this(CloneConfig.defaultConfig());
     }
 
-    private Cloner(CloneConfig config) {
+    public Cloner(CloneConfig config) {
         this.config = config;
         this.fastClonerFactory = new FastClonerFactory(config);
     }

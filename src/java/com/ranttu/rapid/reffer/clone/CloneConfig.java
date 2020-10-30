@@ -56,6 +56,13 @@ final public class CloneConfig {
     }
 
     /**
+     * default configs
+     */
+    public static CloneConfig defaultConfig() {
+        return builder().withDefault().build();
+    }
+
+    /**
      * should this omitted for clone
      */
     public boolean shouldIgnore(Object o) {
