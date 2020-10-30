@@ -4,6 +4,7 @@
  */
 package com.ranttu.rapid.reffer.clone;
 
+import com.ranttu.rapid.reffer.clone.inner.FastClonerFactory;
 import com.ranttu.rapid.reffer.misc.$;
 import lombok.experimental.var;
 

@@ -2,8 +2,11 @@
  * Alipay.com Inc.
  * Copyright (c) 2004-2018 All Rights Reserved.
  */
-package com.ranttu.rapid.reffer.clone;
+package com.ranttu.rapid.reffer.clone.inner;
 
+import com.ranttu.rapid.reffer.clone.CloneConfig;
+import com.ranttu.rapid.reffer.clone.Cloner;
+import com.ranttu.rapid.reffer.clone.FastCloner;
 import com.ranttu.rapid.reffer.misc.$;
 import com.ranttu.rapid.reffer.misc.BackdoorObject;
 import com.ranttu.rapid.reffer.misc.ObjectUtil;
